@@ -21,6 +21,32 @@ pública da **Scryfall**.
 
 ---
 
+## Capturas de tela
+
+**Escolha e abertura de booster (1 tela)**
+
+<p>
+  <img src="docs/screenshots/selecao-booster.jpg" width="220" alt="Escolher booster"/>
+  <img src="docs/screenshots/booster-1-tela.jpg" width="220" alt="Abertura — 1 tela"/>
+</p>
+
+**Abertura em telas dobráveis (Huawei Mate XT) — 2 e 3 telas**
+
+<p>
+  <img src="docs/screenshots/booster-2-telas.jpg" width="360" alt="Abertura — 2 telas"/>
+  <img src="docs/screenshots/booster-3-telas.jpg" width="360" alt="Abertura — 3 telas"/>
+</p>
+
+**Coleção — 1, 2 e 3 telas (2 / 4 / 6 colunas)**
+
+<p>
+  <img src="docs/screenshots/colecao-1-tela.jpg" width="220" alt="Coleção — 1 tela"/>
+  <img src="docs/screenshots/colecao-2-telas.jpg" width="360" alt="Coleção — 2 telas"/>
+  <img src="docs/screenshots/colecao-3-telas.jpg" width="360" alt="Coleção — 3 telas"/>
+</p>
+
+---
+
 ## Tecnologias utilizadas
 
 | Camada | Tecnologia |
