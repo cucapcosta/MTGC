@@ -7,9 +7,7 @@ import '../services/booster_opener.dart';
 import '../services/cheat.dart';
 import '../services/scryfall.dart';
 import '../services/wallet.dart';
-
-// Standard MTG card aspect ratio (width / height).
-const double _cardAspect = 488 / 680;
+import 'booster_panels.dart';
 
 class Booster extends StatefulWidget {
   const Booster({
@@ -17,11 +15,17 @@ class Booster extends StatefulWidget {
     required this.product,
     this.openImmediately = false,
     this.cheatFirst = false,
+    this.debugInitialPool,
   });
 
   final BoosterProduct product;
   final bool openImmediately; // open one pack on entry
   final bool cheatFirst; // that first auto-open uses the cheat opener
+
+  /// Pre-seeds the card pool so [_openBooster] skips the network fetch.
+  /// Set only in tests; production callers always leave this null.
+  @visibleForTesting
+  final List<MtgCard>? debugInitialPool;
 
   @override
   State<Booster> createState() => _BoosterState();
@@ -35,6 +39,7 @@ class _BoosterState extends State<Booster> {
   List<MtgCard>? _setPool;
   List<MtgCard> _pack = [];
   List<MtgCard> _revealQueue = []; // cards not yet swiped away
+  List<MtgCard> _revealed = []; // cards already swiped away, for side panels
   bool _revealing = false;
   bool _loading = false;
   String? _error;
@@ -43,6 +48,11 @@ class _BoosterState extends State<Booster> {
   @override
   void initState() {
     super.initState();
+    // Pre-seed the card pool from the test seam so _openBooster's
+    // `_setPool ??= ...` skips the network fetch.  No-op in production.
+    if (widget.debugInitialPool != null) {
+      _setPool = widget.debugInitialPool;
+    }
     Wallet.balance().then((b) {
       if (mounted) setState(() => _balance = b);
     });
@@ -70,6 +80,7 @@ class _BoosterState extends State<Booster> {
       setState(() {
         _pack = pack;
         _revealQueue = [...pack];
+        _revealed = [];
         _revealing = true;
         _balance = balance;
       });
@@ -151,7 +162,13 @@ class _BoosterState extends State<Booster> {
               ],
             ),
             const SizedBox(height: 16),
-            Expanded(child: _buildBody()),
+            Expanded(
+              child: BoosterLayout(
+                main: _buildBody(),
+                infoList: RevealedInfoList(cards: _revealed),
+                cardScroll: RevealedCardScroll(cards: _revealed),
+              ),
+            ),
           ],
         ),
       ),
@@ -203,6 +220,7 @@ class _BoosterState extends State<Booster> {
                   direction: DismissDirection.startToEnd,
                   onDismissed: (_) {
                     setState(() {
+                      _revealed.add(top);
                       _revealQueue.removeAt(0);
                       if (_revealQueue.isEmpty) _revealing = false;
                     });
@@ -215,7 +233,7 @@ class _BoosterState extends State<Booster> {
                   },
                   child: GestureDetector(
                     onTap: () => _showCard(top),
-                    child: _face(top),
+                    child: CardFace(card: top),
                   ),
                 ),
               ],
@@ -226,66 +244,12 @@ class _BoosterState extends State<Booster> {
     );
   }
 
-  Widget _face(MtgCard card) {
-    return SizedBox(
-      width: 280,
-      child: AspectRatio(
-        aspectRatio: _cardAspect,
-        child: Stack(
-          children: [
-            ClipRRect(
-              borderRadius: BorderRadius.circular(14),
-              child: card.imageUrl != null
-                  ? Image.network(card.imageUrl!, fit: BoxFit.cover)
-                  : Container(
-                      color: Theme.of(
-                        context,
-                      ).colorScheme.surfaceContainerHighest,
-                      alignment: Alignment.center,
-                      padding: const EdgeInsets.all(12),
-                      child: Text(card.name, textAlign: TextAlign.center),
-                    ),
-            ),
-            if (card.foil)
-              const Positioned(
-                top: 8,
-                right: 8,
-                child: Icon(Icons.auto_awesome, color: Colors.amberAccent),
-              ),
-            Positioned(
-              bottom: 8,
-              left: 8,
-              child: Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 10,
-                  vertical: 4,
-                ),
-                decoration: BoxDecoration(
-                  color: Colors.black87,
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Text(
-                  card.priceLabel,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 16,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
   Widget _back() {
     final scheme = Theme.of(context).colorScheme;
     return SizedBox(
       width: 280,
       child: AspectRatio(
-        aspectRatio: _cardAspect,
+        aspectRatio: kCardAspect,
         child: Container(
           decoration: BoxDecoration(
             color: scheme.primary,
