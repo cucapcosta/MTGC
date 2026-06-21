@@ -6,10 +6,6 @@ Collector), revela as cartas com uma animação de "swipe", e cada carta aberta 
 registrada na sua coleção no servidor. As cartas, imagens e preços vêm da API
 pública da **Scryfall**.
 
-> **Status de entrega:** este README é a documentação mínima exigida pela
-> atividade. A tabela de [cobertura dos requisitos](#cobertura-dos-requisitos)
-> indica o que já está implementado e o que ainda está pendente.
-
 ---
 
 ## Problema e solução
@@ -22,9 +18,6 @@ pública da **Scryfall**.
   credita/debita uma carteira virtual conforme o valor das cartas, e persiste a
   coleção do usuário em um backend próprio. A interface se adapta a telas
   dobráveis (Huawei Mate XT), aproveitando múltiplos painéis.
-
-<!-- TODO: link do vídeo de demonstração (problema, solução, etapas, considerações). -->
-<!-- TODO: opcional — screenshots/gifs das telas principais. -->
 
 ---
 
@@ -82,10 +75,11 @@ inicialização. Endpoints:
 | GET | `/collection` | Bearer | lista a coleção do usuário |
 | POST | `/collection/cards` | Bearer | registra cartas abertas |
 
+
 ### API externa (Scryfall)
 
 O app busca o pool de cartas de um set e suas imagens/preços na Scryfall
-(`mtgc/lib/services/scryfall.dart`), agregando valor real à simulação de abertura.
+(`mtgc/lib/services/scryfall.dart`).
 
 ---
 
@@ -113,44 +107,61 @@ uvicorn main:app --reload                # sobe em http://localhost:8000
 Variáveis de ambiente: ver [`server/.env.example`](server/.env.example).
 Deploy (Railway) documentado em [`server/README.md`](server/README.md).
 
-### 2. App (`mtgc/`)
+### 2. App (`mtgc/`) — rodar em um celular físico (Android)
 
-```bash
-cd mtgc
-flutter pub get
-flutter run
-```
+1. No celular, ative as **Opções de desenvolvedor** e a **Depuração USB**
+   (Configurações → Sobre o telefone → toque 7× em "Número da versão"; depois
+   Opções de desenvolvedor → Depuração USB).
+2. Conecte o celular ao computador por **cabo USB** e, na primeira vez,
+   **autorize a depuração** no pop-up que aparece no aparelho.
+3. Confirme que o Flutter reconhece o dispositivo:
 
-Na tela de **Login**, use **"Configurar servidor"** para apontar a URL do backend
-(ex.: `http://10.0.2.2:8000` no emulador Android, ou o domínio do Railway).
-Depois cadastre-se / faça login e use o app.
+   ```bash
+   flutter devices
+   ```
 
----
+   O celular deve aparecer na lista com um id (ex.: `ABC123XYZ`).
+4. Instale as dependências e rode o app **no celular**, usando o id do passo
+   anterior:
 
-## Cobertura dos requisitos
+   ```bash
+   cd mtgc
+   flutter pub get
+   flutter run -d <id-do-dispositivo>
+   ```
 
-| # | Requisito | Status | Implementação |
-|---|---|---|---|
-| 1 | App mobile (não web responsivo) | ✅ | App Flutter (`mtgc/`) |
-| 2 | Mais de duas telas + navegação | ✅ | Login, Menu, Seleção, Booster, Coleção |
-| 3 | Backend funcional | ✅ | FastAPI (`server/`) |
-| 4 | Banco de dados | ✅ | PostgreSQL (`users`, `cards`) |
-| 5 | API externa | ✅ | Scryfall |
-| 6 | Sistema de notificações | ✅ | Notificações locais +5/+10 min após abrir um pack (`NotificationService`) |
-| 7 | Compartilhamento | ✅ | Compartilhar imagem + legenda da carta via share nativo (`CardShareService`) |
-| 8 | Uso de hardware do device | ⚠️ Fora de escopo | Acordado com o revisor |
-| — | Tratamento de erros/carregamentos | ✅ | `ApiException`, spinners, botão "Tentar novamente" |
-| — | Interface coerente com a proposta | ✅ | Tema próprio, fluxo de coleção |
-| — | Documentação mínima | ✅ | Este README |
-| — | Código-fonte em repositório | ✅ | <https://github.com/cucapcosta/MTGC> |
-| — | Vídeo/demonstração | ⬜ | <!-- TODO: adicionar link --> |
-
-> **Observação:** os requisitos 6 (notificações) e 7 (compartilhamento) estão
-> implementados. O requisito 8 (hardware) foi acordado como fora de escopo com o
-> revisor.
+   (Em um emulador, `flutter run` sem `-d` também funciona.)
+5. No primeiro acesso, na tela de **Login**, toque em **"Configurar servidor"** e
+   cole o **link público do servidor** (o domínio do Railway, ex.:
+   `https://seu-app.up.railway.app`). Para um servidor local acessado pelo
+   emulador Android, use `http://10.0.2.2:8000`.
+6. Cadastre-se / faça login e use o app.
 
 ---
 
-## Licença
+## Documentação por pasta
 
-Projeto acadêmico (Atividade Ponderada 4).
+Além deste README, cada pasta tem sua própria documentação:
+
+- [`mtgc/README.md`](mtgc/README.md) — notas do app Flutter.
+- [`mtgc/docs/mtg-boosters.md`](mtgc/docs/mtg-boosters.md) — como funcionam os
+  boosters de MTG (regras e probabilidades de cada slot).
+- [`mtgc/docs/scryfall-api.md`](mtgc/docs/scryfall-api.md) — uso da API externa
+  Scryfall.
+- [`server/README.md`](server/README.md) — API FastAPI: endpoints, execução
+  local e deploy.
+
+---
+
+## Uso de IA
+
+Ferramentas de IA foram utilizadas **como auxílio** na construção deste projeto,
+especificamente em:
+
+- redação e organização da documentação (este README e os READMEs específicos de
+  cada pasta, listados acima);
+- pesquisa e referência da **API externa** (Scryfall);
+- pesquisa do **funcionamento dos boosters** de Magic: The Gathering (regras e
+  probabilidades de cada slot).
+
+A implementação e as decisões finais foram revisadas pelo autor.
