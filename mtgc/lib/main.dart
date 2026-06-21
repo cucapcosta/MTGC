@@ -2,9 +2,12 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
 import 'pages/auth_gate.dart';
+import 'services/notification_service.dart';
 import 'theme.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await NotificationService.init();
   runApp(const MyApp());
 }
 

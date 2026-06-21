@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../models/card.dart';
+import '../services/card_share_service.dart';
 
 /// Full-screen-ish card view: tappable image, name, variation/price, and an
 /// optional copies count. Tapping anywhere dismisses it.
@@ -15,6 +16,25 @@ void showCardDetail(BuildContext context, MtgCard card, {int? quantity}) {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
+            Align(
+              alignment: Alignment.centerRight,
+              child: IconButton(
+                icon: const Icon(Icons.share, color: Colors.white),
+                onPressed: () async {
+                  try {
+                    await CardShareService().shareCard(card);
+                  } catch (_) {
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Não foi possível compartilhar.'),
+                        ),
+                      );
+                    }
+                  }
+                },
+              ),
+            ),
             Flexible(
               child: card.imageUrl != null
                   ? InteractiveViewer(

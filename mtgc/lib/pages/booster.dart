@@ -4,6 +4,7 @@ import '../models/booster_product.dart';
 import '../models/card.dart';
 import '../services/api_client.dart';
 import '../services/booster_opener.dart';
+import '../services/notification_service.dart';
 import '../services/cheat.dart';
 import '../services/scryfall.dart';
 import '../services/wallet.dart';
@@ -74,6 +75,8 @@ class _BoosterState extends State<Booster> {
         _revealing = true;
         _balance = balance;
       });
+      // Remind the user to come back and open another pack.
+      NotificationService.scheduleReminders();
     } catch (e) {
       if (!mounted) return;
       setState(() => _error = '$e');
