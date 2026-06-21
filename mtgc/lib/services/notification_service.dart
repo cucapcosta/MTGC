@@ -33,13 +33,24 @@ class NotificationService {
   static Future<void> init() async {
     tz.initializeTimeZones();
     const androidInit = AndroidInitializationSettings('@mipmap/ic_launcher');
+    // Don't prompt during init; we request explicitly below so the permission
+    // ask happens at launch on both platforms.
+    const iosInit = DarwinInitializationSettings(
+      requestAlertPermission: false,
+      requestBadgePermission: false,
+      requestSoundPermission: false,
+    );
     await _plugin.initialize(
-      settings: const InitializationSettings(android: androidInit),
+      settings: const InitializationSettings(android: androidInit, iOS: iosInit),
     );
     await _plugin
         .resolvePlatformSpecificImplementation<
             AndroidFlutterLocalNotificationsPlugin>()
         ?.requestNotificationsPermission();
+    await _plugin
+        .resolvePlatformSpecificImplementation<
+            IOSFlutterLocalNotificationsPlugin>()
+        ?.requestPermissions(alert: true, badge: true, sound: true);
   }
 
   /// Cancel any pending reminders and schedule a fresh +5/+10 min pair.
