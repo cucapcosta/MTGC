@@ -8,6 +8,7 @@ import '../services/cheat.dart';
 import '../services/scryfall.dart';
 import '../services/wallet.dart';
 import 'booster_panels.dart';
+import '../ui/card_detail.dart';
 
 class Booster extends StatefulWidget {
   const Booster({
@@ -15,17 +16,11 @@ class Booster extends StatefulWidget {
     required this.product,
     this.openImmediately = false,
     this.cheatFirst = false,
-    this.debugInitialPool,
   });
 
   final BoosterProduct product;
   final bool openImmediately; // open one pack on entry
   final bool cheatFirst; // that first auto-open uses the cheat opener
-
-  /// Pre-seeds the card pool so [_openBooster] skips the network fetch.
-  /// Set only in tests; production callers always leave this null.
-  @visibleForTesting
-  final List<MtgCard>? debugInitialPool;
 
   @override
   State<Booster> createState() => _BoosterState();
@@ -48,11 +43,6 @@ class _BoosterState extends State<Booster> {
   @override
   void initState() {
     super.initState();
-    // Pre-seed the card pool from the test seam so _openBooster's
-    // `_setPool ??= ...` skips the network fetch.  No-op in production.
-    if (widget.debugInitialPool != null) {
-      _setPool = widget.debugInitialPool;
-    }
     Wallet.balance().then((b) {
       if (mounted) setState(() => _balance = b);
     });
@@ -232,7 +222,7 @@ class _BoosterState extends State<Booster> {
                     if (_revealQueue.isEmpty) _registerPack();
                   },
                   child: GestureDetector(
-                    onTap: () => _showCard(top),
+                    onTap: () => showCardDetail(context, top),
                     child: CardFace(card: top),
                   ),
                 ),
@@ -275,7 +265,7 @@ class _BoosterState extends State<Booster> {
             horizontal: 12,
             vertical: 8,
           ),
-          onTap: () => _showCard(card),
+          onTap: () => showCardDetail(context, card),
           leading: card.imageUrl != null
               ? Image.network(card.imageUrl!, width: 80, fit: BoxFit.contain)
               : const Icon(Icons.style, size: 48),
@@ -303,51 +293,4 @@ class _BoosterState extends State<Booster> {
     );
   }
 
-  void _showCard(MtgCard card) {
-    showDialog<void>(
-      context: context,
-      builder: (context) => Dialog(
-        backgroundColor: Colors.transparent,
-        insetPadding: const EdgeInsets.all(24),
-        child: GestureDetector(
-          onTap: () => Navigator.of(context).pop(),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Flexible(
-                child: card.imageUrl != null
-                    ? InteractiveViewer(
-                        child: Image.network(
-                          card.imageUrl!,
-                          fit: BoxFit.contain,
-                        ),
-                      )
-                    : const Icon(Icons.style, size: 120, color: Colors.white),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                card.name,
-                textAlign: TextAlign.center,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 18,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                '${card.variationLabel} · ${card.priceLabel}',
-                textAlign: TextAlign.center,
-                style: const TextStyle(
-                  color: Colors.white70,
-                  fontSize: 16,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
 }

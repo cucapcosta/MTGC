@@ -1,22 +1,9 @@
 import 'package:flutter/material.dart';
 
 import '../models/card.dart';
+import '../ui/layout_metrics.dart';
 
-/// Which Mate XT fold state the window width implies.
-enum ScreenMode { single, dual, triple }
-
-// Tune to real Mate XT logical widths once measured on-device.
-const double kDualMinWidth = 700;
-const double kTripleMinWidth = 1100;
-
-// Standard MTG card aspect ratio (width / height).
-const double kCardAspect = 488 / 680;
-
-ScreenMode modeFor(double width) {
-  if (width >= kTripleMinWidth) return ScreenMode.triple;
-  if (width >= kDualMinWidth) return ScreenMode.dual;
-  return ScreenMode.single;
-}
+export '../ui/layout_metrics.dart';
 
 /// A single card image with foil marker and price overlay.
 class CardFace extends StatelessWidget {
@@ -38,8 +25,9 @@ class CardFace extends StatelessWidget {
               child: card.imageUrl != null
                   ? Image.network(card.imageUrl!, fit: BoxFit.cover)
                   : Container(
-                      color:
-                          Theme.of(context).colorScheme.surfaceContainerHighest,
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.surfaceContainerHighest,
                       alignment: Alignment.center,
                       padding: const EdgeInsets.all(12),
                       child: Text(card.name, textAlign: TextAlign.center),
@@ -55,8 +43,10 @@ class CardFace extends StatelessWidget {
               bottom: 8,
               left: 8,
               child: Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 4,
+                ),
                 decoration: BoxDecoration(
                   color: Colors.black87,
                   borderRadius: BorderRadius.circular(10),
@@ -111,8 +101,10 @@ class RevealedInfoList extends StatelessWidget {
         return ListTile(
           dense: true,
           title: Text(card.name, style: const TextStyle(fontSize: 16)),
-          subtitle: Text('${card.typeLine} · ${card.rarity} · '
-              '${card.variationLabel}'),
+          subtitle: Text(
+            '${card.typeLine} · ${card.rarity} · '
+            '${card.variationLabel}',
+          ),
           trailing: Text(
             card.priceLabel,
             style: const TextStyle(fontWeight: FontWeight.w600),
