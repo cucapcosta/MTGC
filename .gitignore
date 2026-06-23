@@ -9,3 +9,6 @@ server/.venv/
 .DS_Store
 *.swp
 .idea/
+
+# Vídeos de demonstração (hospedados externamente, não versionar)
+docs/*.mp4

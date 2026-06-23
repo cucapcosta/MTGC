@@ -45,6 +45,8 @@ pública da **Scryfall**.
   <img src="docs/screenshots/colecao-3-telas.jpg" width="360" alt="Coleção — 3 telas"/>
 </p>
 
+**Demonstração em vídeo:** [assistir no Google Drive](https://drive.google.com/file/d/1XJ87z4BiBaRtmhuVFChQqJApAn07pzHf/view?usp=sharing)
+
 ---
 
 ## Tecnologias utilizadas
